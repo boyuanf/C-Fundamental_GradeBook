@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Speech.Synthesis;
 using System.Text;
@@ -22,6 +23,11 @@ namespace Grades
 
         static void Main(string[] args)
         {
+            //ThrowAwayGradeBook bookOrg = new GradeBook("fesfes");   //not allowed by the compiler
+
+            GradeBook bookThrow=new ThrowAwayGradeBook("fesfes");
+            bookThrow.testArray = "Test Array!";
+
             SpeechSynthesizer synth= new SpeechSynthesizer();
             synth.Speak("Hello! This is the grade book program!");
 
@@ -59,16 +65,29 @@ namespace Grades
             book.AddGrade(75f);
             book.WriteGrades(Console.Out);
 
-            //try
-            //{
-            //    Console.WriteLine("Please enter a name for the book");
-            //    book.Name = Console.ReadLine();
-            //}
-            //catch (ArgumentException ex)
-            //{
-            //    Console.WriteLine("Invalid name");
-            //}
+            using (StreamWriter outputFile = File.CreateText("grades.txt"))
+            {
+                book.WriteGrades(outputFile);     
+                outputFile.Dispose();
+            }
 
+            try
+            {
+                Console.WriteLine("Please enter a name for the book");
+                book.Name = Console.ReadLine();
+            }
+            catch (ArgumentException ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            catch (NullReferenceException)
+            {
+                Console.WriteLine("Null reference exception");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Something went wrong");
+            }
             foreach (float grade in book)
             {
                 Console.WriteLine(grade);
